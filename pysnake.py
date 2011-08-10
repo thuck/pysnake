@@ -3,6 +3,7 @@ import time
 import random
 import string
 import sys
+import math
 
 def clean_snake(win, snake):
     for i in snake:
@@ -46,12 +47,16 @@ def main(stdscr_d):
     info.refresh()
     stdscr.refresh()
     
+    #Ham... ham... apple
     ay, ax = create_apple(stdscr)
+
     key = curses.KEY_RIGHT
-    
-    
+    last_key = key
+
+    difficult = 1
+ 
     while True:
-        time.sleep(0.1)
+        time.sleep(0.1 - (0.01 * difficult))
         c = stdscr.getch()
         
         if c != -1:
@@ -59,23 +64,47 @@ def main(stdscr_d):
         
         if stdscr.inch(ay, ax) != 320:
             ay, ax = create_apple(stdscr)
-            score += 9
+            score += (3 * difficult)
             info.addstr(2, 2, 'Score: %d' % (score))
             info.addstr(3, 2, 'Snake Lenght: %d' % (len(snake)))
             info.refresh()
+
+
+        if key == ord('p'):
+            stdscr.timeout(-1)
+            valid_key = stdscr.getch()
+            stdscr.timeout(0)
+            key = valid_key if valid_key in (curses.KEY_DOWN,
+                                             curses.KEY_UP,
+                                             curses.KEY_LEFT,
+                                             curses.KEY_RIGHT, ord('q')) else last_key
+
+        elif key in (ord('+'), ord('-')):
+            if key == ord('+'):
+               difficult += 1
+
+            else:
+              difficult -= 1
+
+            key = last_key
+
+        else:
+           last_key = key
+
         
         clean_snake(stdscr, snake)
         
         if key == ord('q'):
             break
-            
+
         elif key == curses.KEY_DOWN:
             y = snake[0][0] + 1
             x = snake[0][1]
             
         elif key == curses.KEY_UP:
             y = snake[0][0] - 1
-            x = snake[0][1]            
+            x = snake[0][1]
+                        
             
         elif key == curses.KEY_LEFT:
             y = snake[0][0]
@@ -84,7 +113,8 @@ def main(stdscr_d):
         elif key == curses.KEY_RIGHT:
             y = snake[0][0]
             x = snake[0][1] + 1
-        
+
+        #This is to logic to check if the snake hit the "wall" or itself
         if (0 >= x or x >= width -1 or 
             0 >= y  or y >= height -1 or
             (y, x) in snake):
