@@ -31,9 +31,10 @@ def main(stdscr_d):
     stdscr = stdscr_d.subwin(30, 40, 0, 0)
     info = stdscr_d.subwin(25, 50, 0, 42)
     stdscr.keypad(1)
-    
+
+    difficult = 1
     score = 0
-    snake = [(10, 10)]
+    snake = [(10, 10),(10,9),(10,8)]
     stdscr.addch(snake[0][0], snake[0][1] , '#')
     
     curses.curs_set(0)
@@ -43,6 +44,7 @@ def main(stdscr_d):
     height, width = stdscr.getmaxyx()
     info.addstr(2, 2, 'Score: %d' % (score))
     info.addstr(3, 2, 'Snake Lenght: %d' % (len(snake)))
+    info.addstr(4, 2, 'Difficult: %d' % (difficult))
     
     info.refresh()
     stdscr.refresh()
@@ -53,8 +55,6 @@ def main(stdscr_d):
     key = curses.KEY_RIGHT
     last_key = key
 
-    difficult = 1
- 
     while True:
         time.sleep(0.1 - (0.01 * difficult))
         c = stdscr.getch()
@@ -67,6 +67,7 @@ def main(stdscr_d):
             score += (3 * difficult)
             info.addstr(2, 2, 'Score: %d' % (score))
             info.addstr(3, 2, 'Snake Lenght: %d' % (len(snake)))
+            #info.addstr(4, 2, 'Difficult: %d' % (difficult))
             info.refresh()
 
 
@@ -85,7 +86,9 @@ def main(stdscr_d):
 
             else:
               difficult -= 1
-
+            
+            info.addstr(4, 2, 'Difficult: %d' % (difficult))
+            info.refresh()
             key = last_key
 
         else:
