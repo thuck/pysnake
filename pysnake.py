@@ -1,6 +1,5 @@
 import curses
 import curses.ascii
-import time
 import random
 import sys
 
@@ -35,6 +34,7 @@ def create_apple(win):
 
 def main(stdscr_d):
     curses.init_pair(1, curses.COLOR_RED, 0)
+    curses.init_pair(2, curses.COLOR_GREEN, 0)
     stdscr = stdscr_d.subwin(30, 40, 0, 0)
     info = stdscr_d.subwin(25, 50, 0, 42)
     stdscr.keypad(1)
@@ -65,21 +65,21 @@ def main(stdscr_d):
 
     while True:        
         stdscr.timeout(int(100 - (7 * difficult)))
-        #c = stdscr.getch()
         key = stdscr.getch()
         stdscr.timeout(0)
-        
-        #if c != -1:
-            #key = c
 
         if key == ord('p'):
             stdscr.timeout(-1)
-            valid_key = stdscr.getch()
+            info.addstr(12, 18, '==Pause==')
+            info.refresh()
+            valid_key = stdscr.getch()            
             stdscr.timeout(0)
             key = valid_key if valid_key in (curses.KEY_DOWN,
                                              curses.KEY_UP,
                                              curses.KEY_LEFT,
                                              curses.KEY_RIGHT, ord('q')) else last_key
+            info.addstr(12, 18, '         ')
+            info.refresh()
             last_key = key                                 
             
 
@@ -124,8 +124,10 @@ def main(stdscr_d):
         #Always include a new piece in the snake
         snake.insert(0, (y, x))
         
-        #Remove the last piece if not ate the apple
+        #get the char in the position
         current_char = stdscr.inch(y, x)
+        
+        #Remove the last piece if not ate the apple
         if current_char == 32:
             update_snake(stdscr, snake)
             snake.pop()
@@ -133,7 +135,7 @@ def main(stdscr_d):
         #Eating the apple... it's delicious
         elif current_char == 320:
             create_apple(stdscr)
-            stdscr.addch(y, x, '@')
+            stdscr.addch(y, x, '@', curses.color_pair(2))            
             score += (3 * difficult)
             info.addstr(2, 2, 'Score: %d' % (score))
             info.addstr(3, 2, 'Snake Lenght: %d' % (len(snake)))
@@ -167,4 +169,8 @@ def main(stdscr_d):
 
 
 if __name__ == '__main__':
-    curses.wrapper(main)
+    try:
+        curses.wrapper(main)
+
+    except KeyboardInterrupt:
+        sys.exit(0)
